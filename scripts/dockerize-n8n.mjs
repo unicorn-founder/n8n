@@ -22,17 +22,7 @@ process.env.FORCE_COLOR = '1';
  * @returns {string} Platform string (e.g., 'linux/amd64')
  */
 function getDockerPlatform() {
-	const arch = os.arch();
-	const dockerArch = {
-		x64: 'amd64',
-		arm64: 'arm64',
-	}[arch];
-
-	if (!dockerArch) {
-		throw new Error(`Unsupported architecture: ${arch}. Only x64 and arm64 are supported.`);
-	}
-
-	return `linux/${dockerArch}`;
+	return `linux/arm64,linux/amd64`;
 }
 
 /**
@@ -179,8 +169,7 @@ async function buildDockerImage() {
 	try {
 		if (containerEngine === 'podman') {
 			const { stdout } = await $`podman build \
-				--platform ${platform} \
-				--build-arg TARGETPLATFORM=${platform} \
+				--platform linux/arm64,linux/amd64 \
 				-t ${config.fullImageName} \
 				-f ${config.dockerfilePath} \
 				${config.buildContext}`;
@@ -188,8 +177,7 @@ async function buildDockerImage() {
 		} else {
 			// use docker command by default since most other engines have compatibility layers for it.
 			const { stdout } = await $`docker build \
-				--platform ${platform} \
-				--build-arg TARGETPLATFORM=${platform} \
+				--platform linux/arm64,linux/amd64 \
 				-t ${config.fullImageName} \
 				-f ${config.dockerfilePath} \
 				--load \
