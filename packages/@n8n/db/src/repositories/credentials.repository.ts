@@ -6,6 +6,7 @@ import { CredentialsEntity } from '../entities';
 import type { User } from '../entities';
 import type { ListQuery } from '../entities/types-db';
 
+// TODO: Change this -> credentials should no longer be stored in local DB but instead in UnicornFounder backend
 @Service()
 export class CredentialsRepository extends Repository<CredentialsEntity> {
 	constructor(dataSource: DataSource) {

@@ -353,6 +353,8 @@ export class CredentialsService {
 		user: User,
 		options: { workflowId: string } | { projectId: string },
 	) {
+		// TODO: Fetch credentials for workflow from UnicornFounder backend API
+
 		// necessary to get the scopes
 		const projectRelations = await this.projectService.getProjectRelationsForUser(user);
 
@@ -386,6 +388,8 @@ export class CredentialsService {
 	}
 
 	async findAllCredentialIdsForWorkflow(workflowId: string): Promise<CredentialsEntity[]> {
+		// TODO: Fetch credentials for workflow from UnicornFounder backend API
+
 		// If the workflow is owned by a personal project and the owner of the
 		// project has global read permissions it can use all personal credentials.
 		const user = await this.userRepository.findPersonalOwnerForWorkflow(workflowId);
@@ -399,6 +403,8 @@ export class CredentialsService {
 	}
 
 	async findAllCredentialIdsForProject(projectId: string): Promise<CredentialsEntity[]> {
+		// TODO: Handle credentialy by project id via UnicornFounder backend API
+
 		// If this is a personal project and the owner of the project has global
 		// read permissions then all workflows in that project can use all
 		// credentials of all personal projects.
@@ -514,6 +520,8 @@ export class CredentialsService {
 	}
 
 	async update(credentialId: string, newCredentialData: ICredentialsDb) {
+		// TODO: Call UnicornFounder backend API to update a credential by ID
+
 		await this.externalHooks.run('credentials.update', [newCredentialData]);
 
 		// Update the credentials in DB
@@ -562,6 +570,7 @@ export class CredentialsService {
 				throw new UnexpectedError('No personal project found');
 			}
 
+			// TODO: Save credential in UnicornFounder backend
 			const savedCredential = await transactionManager.save<CredentialsEntity>(newCredential);
 
 			savedCredential.data = newCredential.data;
@@ -592,6 +601,7 @@ export class CredentialsService {
 	async delete(user: User, credentialId: string) {
 		await this.externalHooks.run('credentials.delete', [credentialId]);
 
+		// TODO: Call UnicornFounder backend API to delete a credential by ID
 		const credential = await this.credentialsFinderService.findCredentialForUser(
 			credentialId,
 			user,
@@ -732,6 +742,7 @@ export class CredentialsService {
 		let sharing: SharedCredentials | null = null;
 		let decryptedData: ICredentialDataDecryptedObject | null = null;
 
+		// TODO: Get credential by ID from UnicornFounder backend API
 		sharing = includeDecryptedData
 			? // Try to get the credential with `credential:update` scope, which
 				// are required for decrypting the data.
@@ -774,6 +785,8 @@ export class CredentialsService {
 
 	async getCredentialScopes(user: User, credentialId: string): Promise<Scope[]> {
 		const userProjectRelations = await this.projectService.getProjectRelationsForUser(user);
+
+		// TODO: Call UnicornFounder backend API to get a credential by ID
 		const shared = await this.sharedCredentialsRepository.find({
 			where: {
 				projectId: In([...new Set(userProjectRelations.map((pr) => pr.projectId))]),
@@ -903,6 +916,7 @@ export class CredentialsService {
 			opts.projectId,
 		);
 
+		console.log(JSON.stringify(credential));
 		const scopes = await this.getCredentialScopes(user, credential.id);
 
 		return { ...credential, scopes };
