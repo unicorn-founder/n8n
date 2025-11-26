@@ -39,4 +39,11 @@ export class UrlService {
 	private trimQuotes(url?: string) {
 		return url?.replace(/^["]+|["]+$/g, '') ?? '';
 	}
+
+	getWorkspace() {
+		const baseUrl = this.getWebhookBaseUrl();
+		const hostname = new URL(baseUrl.startsWith('http') ? baseUrl : 'https://' + baseUrl).hostname;
+		const parts = hostname.split('.');
+		return parts[0];
+	}
 }

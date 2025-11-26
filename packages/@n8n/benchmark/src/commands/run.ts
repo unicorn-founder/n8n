@@ -26,6 +26,11 @@ export default class RunCommand extends Command {
 			default: 'http://localhost:5678',
 			env: 'N8N_BASE_URL',
 		}),
+		unicornFounderApiSecret: Flags.string({
+			description: 'The API secret for accessing unicorn founder api',
+			default: 'secret',
+			env: 'UNICORN_FOUNDER_API_SECRET',
+		}),
 		n8nUserEmail: Flags.string({
 			description: 'The email address of the n8n user',
 			default: 'benchmark-user@n8n.io',
