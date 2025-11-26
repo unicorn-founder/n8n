@@ -85,8 +85,7 @@ export class ChatHubCredentialsService {
 			throw new ForbiddenError('Missing owner project for the workflow');
 		}
 
-		const allCredentials =
-			await this.credentialsService.findAllCredentialIdsForWorkflow(workflowId);
+		const allCredentials = await this.credentialsService.findAllCredentialIdsForWorkflow();
 
 		const credential = allCredentials.find((c) => c.id === credentialId);
 		if (!credential) {

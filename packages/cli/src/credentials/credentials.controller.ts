@@ -255,7 +255,7 @@ export class CredentialsController {
 			newCredentialData.isGlobal = isGlobal;
 		}
 
-		const responseData = await this.credentialsService.update(credentialId, newCredentialData);
+		const responseData = await this.credentialsService.update(newCredentialData);
 
 		if (responseData === null) {
 			throw new NotFoundError(`Credential ID "${credentialId}" could not be found to be updated.`);

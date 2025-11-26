@@ -7,7 +7,6 @@ import {
 	CredentialsRepository,
 	ProjectRepository,
 	SharedCredentialsRepository,
-	UserRepository,
 } from '@n8n/db';
 import { Service } from '@n8n/di';
 import { hasGlobalScope, PROJECT_OWNER_ROLE_SLUG, type Scope } from '@n8n/permissions';
@@ -51,6 +50,7 @@ import { OwnershipService } from '@/services/ownership.service';
 import { ProjectService } from '@/services/project.service.ee';
 import { RoleService } from '@/services/role.service';
 import { ForbiddenError } from '@/errors/response-errors/forbidden.error';
+import { UnicornFounderService } from '@/unicornfounder/unicornfounder.service';
 
 export type CredentialsGetSharedOptions =
 	| { allowGlobalScope: true; globalScope: Scope }
@@ -74,8 +74,8 @@ export class CredentialsService {
 		private readonly projectRepository: ProjectRepository,
 		private readonly projectService: ProjectService,
 		private readonly roleService: RoleService,
-		private readonly userRepository: UserRepository,
 		private readonly credentialsFinderService: CredentialsFinderService,
+		private readonly unicornFounderService: UnicornFounderService,
 	) {}
 
 	private async addGlobalCredentials(
@@ -353,8 +353,6 @@ export class CredentialsService {
 		user: User,
 		options: { workflowId: string } | { projectId: string },
 	) {
-		// TODO: Fetch credentials for workflow from UnicornFounder backend API
-
 		// necessary to get the scopes
 		const projectRelations = await this.projectService.getProjectRelationsForUser(user);
 
@@ -366,8 +364,8 @@ export class CredentialsService {
 		// get all credentials the workflow or project has access to
 		const allCredentialsForWorkflow =
 			'workflowId' in options
-				? (await this.findAllCredentialIdsForWorkflow(options.workflowId)).map((c) => c.id)
-				: (await this.findAllCredentialIdsForProject(options.projectId)).map((c) => c.id);
+				? (await this.findAllCredentialIdsForWorkflow()).map((c) => c.id)
+				: (await this.findAllCredentialIdsForProject()).map((c) => c.id);
 
 		// the intersection of both is all credentials the user can use in this
 		// workflow or project
@@ -387,34 +385,12 @@ export class CredentialsService {
 			}));
 	}
 
-	async findAllCredentialIdsForWorkflow(workflowId: string): Promise<CredentialsEntity[]> {
-		// TODO: Fetch credentials for workflow from UnicornFounder backend API
-
-		// If the workflow is owned by a personal project and the owner of the
-		// project has global read permissions it can use all personal credentials.
-		const user = await this.userRepository.findPersonalOwnerForWorkflow(workflowId);
-		if (user && hasGlobalScope(user, 'credential:read')) {
-			return await this.credentialsRepository.findAllPersonalCredentials();
-		}
-
-		// Otherwise the workflow can only use credentials from projects it's part
-		// of.
-		return await this.credentialsRepository.findAllCredentialsForWorkflow(workflowId);
+	async findAllCredentialIdsForWorkflow(): Promise<CredentialsEntity[]> {
+		return await this.unicornFounderService.fetchCredentialsForWorkspace();
 	}
 
-	async findAllCredentialIdsForProject(projectId: string): Promise<CredentialsEntity[]> {
-		// TODO: Handle credentialy by project id via UnicornFounder backend API
-
-		// If this is a personal project and the owner of the project has global
-		// read permissions then all workflows in that project can use all
-		// credentials of all personal projects.
-		const user = await this.userRepository.findPersonalOwnerForProject(projectId);
-		if (user && hasGlobalScope(user, 'credential:read')) {
-			return await this.credentialsRepository.findAllPersonalCredentials();
-		}
-
-		// Otherwise only the credentials in this project can be used.
-		return await this.credentialsRepository.findAllCredentialsForProject(projectId);
+	async findAllCredentialIdsForProject(): Promise<CredentialsEntity[]> {
+		return await this.unicornFounderService.fetchCredentialsForWorkspace();
 	}
 
 	/**
@@ -519,17 +495,11 @@ export class CredentialsService {
 		}
 	}
 
-	async update(credentialId: string, newCredentialData: ICredentialsDb) {
-		// TODO: Call UnicornFounder backend API to update a credential by ID
-
+	async update(newCredentialData: ICredentialsDb) {
+		const updatedCredential = await this.unicornFounderService.updateCredential(newCredentialData);
 		await this.externalHooks.run('credentials.update', [newCredentialData]);
-
-		// Update the credentials in DB
-		await this.credentialsRepository.update(credentialId, newCredentialData);
-
-		// We sadly get nothing back from "update". Neither if it updated a record
-		// nor the new value. So query now the updated entry.
-		return await this.credentialsRepository.findOneBy({ id: credentialId });
+		// ~
+		return updatedCredential;
 	}
 
 	async save(
@@ -570,10 +540,10 @@ export class CredentialsService {
 				throw new UnexpectedError('No personal project found');
 			}
 
-			// TODO: Save credential in UnicornFounder backend
 			const savedCredential = await transactionManager.save<CredentialsEntity>(newCredential);
-
 			savedCredential.data = newCredential.data;
+
+			await this.unicornFounderService.createCredential(savedCredential);
 
 			const newSharedCredential = this.sharedCredentialsRepository.create({
 				role: 'credential:owner',
@@ -601,7 +571,6 @@ export class CredentialsService {
 	async delete(user: User, credentialId: string) {
 		await this.externalHooks.run('credentials.delete', [credentialId]);
 
-		// TODO: Call UnicornFounder backend API to delete a credential by ID
 		const credential = await this.credentialsFinderService.findCredentialForUser(
 			credentialId,
 			user,
@@ -613,6 +582,7 @@ export class CredentialsService {
 		}
 
 		await this.credentialsRepository.remove(credential);
+		await this.unicornFounderService.deleteCredential(credentialId);
 	}
 
 	async test(userId: User['id'], credentials: ICredentialsDecrypted) {
@@ -916,7 +886,6 @@ export class CredentialsService {
 			opts.projectId,
 		);
 
-		console.log(JSON.stringify(credential));
 		const scopes = await this.getCredentialScopes(user, credential.id);
 
 		return { ...credential, scopes };
