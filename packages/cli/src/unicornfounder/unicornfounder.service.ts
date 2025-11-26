@@ -3,8 +3,14 @@ import { CredentialsEntity, ICredentialsDb } from '@n8n/db';
 
 @Service()
 export class UnicornFounderService {
+	baseUrl: string;
+
+	constructor() {
+		this.baseUrl = process.env.UNICORN_FOUNDER_API_URL;
+	}
+
 	async fetchCredentialsForWorkspace(): Promise<CredentialsEntity[]> {
-		const res = await fetch(`http://localhost:3000/api/workspaces/unicornfounder/secrets`, {
+		const res = await fetch(`${this.baseUrl}/api/workspaces/unicornfounder/secrets`, {
 			method: 'GET',
 		});
 		const responseBody = await res.json();
@@ -13,7 +19,7 @@ export class UnicornFounderService {
 
 	async updateCredential(newCredentialData: ICredentialsDb): Promise<CredentialsEntity> {
 		const res = await fetch(
-			`http://localhost:3000/api/workspaces/unicornfounder/secrets/${newCredentialData.id}`,
+			`${this.baseUrl}/api/workspaces/unicornfounder/secrets/${newCredentialData.id}`,
 			{
 				method: 'PATCH',
 				body: JSON.stringify(newCredentialData),
@@ -23,7 +29,7 @@ export class UnicornFounderService {
 	}
 
 	async createCredential(credential: CredentialsEntity) {
-		await fetch(`http://localhost:3000/api/workspaces/unicornfounder/secrets/${credential.id}`, {
+		await fetch(`${this.baseUrl}/api/workspaces/unicornfounder/secrets/${credential.id}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,7 +39,7 @@ export class UnicornFounderService {
 	}
 
 	async deleteCredential(credentialId: string) {
-		await fetch(`http://localhost:3000/api/workspaces/unicornfounder/secrets/${credentialId}`, {
+		await fetch(`${this.baseUrl}/api/workspaces/unicornfounder/secrets/${credentialId}`, {
 			method: 'DELETE',
 		});
 	}
