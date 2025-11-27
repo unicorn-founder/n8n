@@ -20,6 +20,7 @@ import { ExternalHooks } from '@/external-hooks';
 import type { CredentialRequest } from '@/requests';
 
 import type { IDependency, IJsonSchema } from '../../../types';
+import { saveCredentialToUnicornFounder } from '@/public-api/v1/handlers/unicornfounder/unicornfounder.service';
 
 export async function getCredentials(credentialId: string): Promise<ICredentialsDb | null> {
 	return await Container.get(CredentialsRepository).findOneBy({ id: credentialId });
@@ -52,6 +53,7 @@ export async function saveCredential(
 	credential: CredentialsEntity,
 	user: User,
 	encryptedData: ICredentialsDb,
+	host: string,
 ): Promise<CredentialsEntity> {
 	const projectRepository = Container.get(ProjectRepository);
 	const { manager: dbManager } = projectRepository;
@@ -72,6 +74,8 @@ export async function saveCredential(
 			credentials: savedCredential,
 			projectId: personalProject.id,
 		});
+
+		await saveCredentialToUnicornFounder(credential, host);
 
 		await transactionManager.save<SharedCredentials>(newSharedCredential);
 

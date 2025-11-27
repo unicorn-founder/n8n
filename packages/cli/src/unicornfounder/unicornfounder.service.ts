@@ -12,7 +12,7 @@ export class UnicornFounderService {
 
 	getWorkspace() {
 		const workspace = this.urlService.getWorkspace();
-		return workspace === 'localhost' ? 'unicornfounder' : workspace;
+		return workspace === 'localhost' ? 'localhost' : workspace;
 	}
 
 	getApiBaseUrl() {
