@@ -184,3 +184,7 @@ export declare namespace AuditRequest {
 		{ additionalOptions?: { categories?: Risk.Category[]; daysAbandonedWorkflow?: number } }
 	>;
 }
+
+export declare namespace CommunityPackagesRequest {
+	type Install = AuthenticatedRequest<{}, {}, { packageName: string }>;
+}
