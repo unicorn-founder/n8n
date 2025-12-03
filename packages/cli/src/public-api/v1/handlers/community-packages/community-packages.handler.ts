@@ -17,4 +17,19 @@ export = {
 			}
 		},
 	],
+	isPackageInstalled: [
+		async (req: CommunityPackagesRequest.Check, res: Response): Promise<Response> => {
+			const { name: packageName } = req.params;
+			try {
+				const { CommunityPackagesService } = await import(
+					'@/modules/community-packages/community-packages.service'
+				);
+				const isInstalled =
+					await Container.get(CommunityPackagesService).isPackageInstalled(packageName);
+				return res.status(isInstalled ? 200 : 404).send();
+			} catch (error) {
+				return res.status(500).json(error);
+			}
+		},
+	],
 };

@@ -1,0 +1,23 @@
+get:
+  x-eov-operation-id: isPackageInstalled
+  x-eov-operation-handler: v1/handlers/community-packages/community-packages.handler
+  tags:
+    - Community Packages
+  summary: Check if community package is installed
+  description: Check if community package is installed in your n8n instance.
+  parameters:
+    - name: name
+      in: path
+      description: The name of the package to check if it is installed
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Operation successful.
+    '401':
+      $ref: '../../../../shared/spec/responses/unauthorized.yml'
+    '404':
+      description: Package is not installed
+    '500':
+      description: Internal server error.

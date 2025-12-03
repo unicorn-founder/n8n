@@ -187,4 +187,5 @@ export declare namespace AuditRequest {
 
 export declare namespace CommunityPackagesRequest {
 	type Install = AuthenticatedRequest<{}, {}, { packageName: string }>;
+	type Check = AuthenticatedRequest<{ name: string }, {}, {}, Record<string, string>>;
 }

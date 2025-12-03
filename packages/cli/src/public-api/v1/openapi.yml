@@ -82,6 +82,8 @@ paths:
     $ref: './handlers/variables/spec/paths/variables.id.yml'
   /community-packages:
     $ref: './handlers/community-packages/spec/paths/community-packages.yml'
+  /community-packages/{name}:
+    $ref: './handlers/community-packages/spec/paths/community-packages.name.yml'
   /projects:
     $ref: './handlers/projects/spec/paths/projects.yml'
   /projects/{projectId}:
