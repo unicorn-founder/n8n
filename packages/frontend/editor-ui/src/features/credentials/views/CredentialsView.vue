@@ -276,7 +276,7 @@ onMounted(() => {
 				data-test-id="resources-list-item"
 				class="mb-2xs"
 				:data="data"
-				:read-only="data.readOnly"
+				:read-only="data.name.startsWith('system-')"
 				:needs-setup="data.needsSetup"
 				@click="setRouteCredentialId"
 			/>

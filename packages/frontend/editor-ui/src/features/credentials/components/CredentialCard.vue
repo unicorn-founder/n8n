@@ -131,7 +131,7 @@ function moveResource() {
 </script>
 
 <template>
-	<N8nCard :class="$style.cardLink" @click.stop="onClick">
+	<N8nCard :class="$style.cardLink" @click.stop="!readOnly && onClick()">
 		<template #prepend>
 			<CredentialIcon :credential-type-name="credentialType?.name ?? ''" />
 		</template>
@@ -168,12 +168,14 @@ function moveResource() {
 					:show-badge-border="false"
 					:global="data.isGlobal"
 				/>
-				<N8nActionToggle
-					data-test-id="credential-card-actions"
-					:actions="actions"
-					theme="dark"
-					@action="onAction"
-				/>
+				<div v-if="!readOnly">
+					<N8nActionToggle
+						data-test-id="credential-card-actions"
+						:actions="actions"
+						theme="dark"
+						@action="onAction"
+					/>
+				</div>
 			</div>
 		</template>
 	</N8nCard>
