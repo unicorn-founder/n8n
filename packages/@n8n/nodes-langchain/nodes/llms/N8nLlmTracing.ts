@@ -118,7 +118,7 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 				body: JSON.stringify({
 					metadata: {
 						model,
-						usage: llmOutput['usage']['estimatedTokenUsage'],
+						usage: llmOutput,
 					},
 				}),
 			},

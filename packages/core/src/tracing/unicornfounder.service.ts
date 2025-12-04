@@ -32,6 +32,7 @@ export class UnicornFounderService {
 				headers: {
 					Authorization: this.getUnicornFounderApiKey(),
 				},
+				body: JSON.stringify({}),
 			},
 		);
 	}
