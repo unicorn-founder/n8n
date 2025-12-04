@@ -21,7 +21,7 @@ export class UnicornFounderService {
 		const allowedDomain = credential['allowedDomains'] as string;
 		const credentialId = credential['credentialId'] as string;
 		let isLocalExecution = false;
-		if (allowedDomain.includes('localhost')) {
+		if (allowedDomain?.includes('localhost')) {
 			isLocalExecution = true;
 		}
 		// ~

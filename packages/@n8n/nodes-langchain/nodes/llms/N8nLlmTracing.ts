@@ -104,7 +104,7 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 	) {
 		const allowedDomain = allowedDomains!;
 		let isLocalExecution = false;
-		if (allowedDomain.includes('localhost')) {
+		if (allowedDomain?.includes('localhost')) {
 			isLocalExecution = true;
 		}
 
