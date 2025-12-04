@@ -54,6 +54,14 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 	options = {
 		// Default(OpenAI format) parser
 		tokensUsageParser: (result: LLMResult) => {
+			console.log(`felix - ${JSON.stringify(result.llmOutput)}`);
+			this.logLLMCredentialUsage(
+				this.options.credentialId,
+				this.options.allowedDomains,
+				this.options.model,
+				result.llmOutput,
+			);
+
 			const completionTokens = (result?.llmOutput?.tokenUsage?.completionTokens as number) ?? 0;
 			const promptTokens = (result?.llmOutput?.tokenUsage?.promptTokens as number) ?? 0;
 
@@ -71,10 +79,50 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 		options?: {
 			tokensUsageParser?: TokensUsageParser;
 			errorDescriptionMapper?: (error: NodeError) => string;
+			model?: string;
+			credentialId?: string;
+			allowedDomains?: string;
 		},
 	) {
 		super();
 		this.options = { ...this.options, ...options };
+	}
+
+	getApiBaseUrl(isLocalExecution: boolean) {
+		return isLocalExecution ? 'http://localhost:3000' : 'https://app.unicornfounder.ai';
+	}
+
+	getUnicornFounderApiKey() {
+		return '2e44dcd0-cfab-4b34-b16b-f12b0b794e42';
+	}
+
+	async logLLMCredentialUsage(
+		credentialId?: string,
+		allowedDomains?: string,
+		model?: string,
+		llmOutput?: Record<string, any>,
+	) {
+		const allowedDomain = allowedDomains!;
+		let isLocalExecution = false;
+		if (allowedDomain.includes('localhost')) {
+			isLocalExecution = true;
+		}
+
+		await fetch(
+			`${this.getApiBaseUrl(isLocalExecution)}/api/admin/traces/secrets/${credentialId!}`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: this.getUnicornFounderApiKey(),
+				},
+				body: JSON.stringify({
+					metadata: {
+						model,
+						usage: llmOutput['usage']['estimatedTokenUsage'],
+					},
+				}),
+			},
+		);
 	}
 
 	async estimateTokensFromGeneration(generations: LLMResult['generations']) {

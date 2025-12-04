@@ -19,6 +19,7 @@ import { isObjectLiteral } from '../utils/is-object-literal';
 
 const noOp = () => {};
 
+// TODO: Extend this to send logs to UnicornFounder backend API
 @Service()
 export class Logger implements LoggerType {
 	private internalLogger: winston.Logger;

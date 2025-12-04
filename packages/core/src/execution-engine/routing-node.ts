@@ -4,42 +4,44 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import get from 'lodash/get';
+import { Container } from '@n8n/di';
 import merge from 'lodash/merge';
 import set from 'lodash/set';
-import {
-	NodeHelpers,
-	NodeApiError,
-	NodeOperationError,
-	sleep,
-	NodeConnectionTypes,
-} from 'n8n-workflow';
 import type {
+	DeclarativeRestApiSettings,
 	ICredentialDataDecryptedObject,
 	ICredentialsDecrypted,
-	IHttpRequestOptions,
-	IN8nHttpFullResponse,
-	INodeExecutionData,
-	INodeParameters,
-	INodePropertyOptions,
-	INodeType,
-	DeclarativeRestApiSettings,
-	IWorkflowDataProxyAdditionalKeys,
-	NodeParameterValue,
 	IDataObject,
 	IExecuteData,
+	IExecutePaginationFunctions,
 	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	IN8nHttpFullResponse,
 	IN8nRequestOperations,
+	INodeCredentialDescription,
+	INodeExecutionData,
+	INodeParameters,
 	INodeProperties,
 	INodePropertyCollection,
+	INodePropertyOptions,
+	INodeType,
+	IWorkflowDataProxyAdditionalKeys,
+	JsonObject,
+	NodeParameterValue,
 	NodeParameterValueType,
 	PostReceiveAction,
-	JsonObject,
-	INodeCredentialDescription,
-	IExecutePaginationFunctions,
+} from 'n8n-workflow';
+import {
+	NodeApiError,
+	NodeConnectionTypes,
+	NodeHelpers,
+	NodeOperationError,
+	sleep,
 } from 'n8n-workflow';
 import url from 'node:url';
 
 import { type ExecuteContext, ExecuteSingleContext } from './node-execution-context';
+import { UnicornFounderService } from '@/tracing/unicornfounder.service';
 
 export class RoutingNode {
 	constructor(
@@ -263,6 +265,9 @@ export class RoutingNode {
 					httpCode: error.isAxiosError && error.response ? String(error.response?.status) : 'none',
 				});
 			}
+
+			const unicornFounderService = Container.get(UnicornFounderService);
+			await unicornFounderService.logCredentialUsage(credentials);
 
 			if (itemContext[itemIndex].requestData.maxResults) {
 				// Remove not needed items in case APIs return to many

@@ -382,6 +382,11 @@ export abstract class NodeExecutionContext implements Omit<FunctionsBase, 'getCr
 			expressionResolveValues,
 		);
 
+		(decryptedDataObject as ICredentialDataDecryptedObject)['credentialId'] = nodeCredentials.id!;
+		(decryptedDataObject as ICredentialDataDecryptedObject)['credentialName'] =
+			nodeCredentials.name!;
+		(decryptedDataObject as ICredentialDataDecryptedObject)['type'] = type!;
+
 		return decryptedDataObject as T;
 	}
 
