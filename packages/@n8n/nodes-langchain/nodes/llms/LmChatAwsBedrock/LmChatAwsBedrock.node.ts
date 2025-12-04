@@ -263,7 +263,13 @@ export class LmChatAwsBedrock implements INodeType {
 			region: credentials.region,
 			temperature: options.temperature,
 			maxTokens: options.maxTokensToSample,
-			callbacks: [new N8nLlmTracing(this)],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

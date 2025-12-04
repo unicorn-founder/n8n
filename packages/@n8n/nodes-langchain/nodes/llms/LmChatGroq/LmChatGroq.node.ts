@@ -145,7 +145,13 @@ export class LmChatGroq implements INodeType {
 			model: modelName,
 			maxTokens: options.maxTokensToSample,
 			temperature: options.temperature,
-			callbacks: [new N8nLlmTracing(this)],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+				}),
+			],
 			httpAgent: getProxyAgent('https://api.groq.com/openai/v1'),
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});

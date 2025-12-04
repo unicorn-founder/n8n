@@ -102,7 +102,13 @@ export class LmLemonade implements INodeType {
 			maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
 			stop,
 			configuration,
-			callbacks: [new N8nLlmTracing(this)],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

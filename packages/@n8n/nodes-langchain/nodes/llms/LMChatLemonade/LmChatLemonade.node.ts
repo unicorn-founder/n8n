@@ -106,7 +106,13 @@ export class LmChatLemonade implements INodeType {
 			model: modelName,
 			...processedOptions,
 			configuration,
-			callbacks: [new N8nLlmTracing(this)],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

@@ -99,7 +99,13 @@ export class LmCohere implements INodeType {
 		const model = new Cohere({
 			apiKey: credentials.apiKey as string,
 			...options,
-			callbacks: [new N8nLlmTracing(this)],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

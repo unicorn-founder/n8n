@@ -156,7 +156,14 @@ export class LmChatGoogleGemini implements INodeType {
 			temperature: options.temperature,
 			maxOutputTokens: options.maxOutputTokens,
 			safetySettings,
-			callbacks: [new N8nLlmTracing(this, { errorDescriptionMapper })],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+					errorDescriptionMapper,
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

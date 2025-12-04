@@ -166,7 +166,14 @@ export class LmChatCohere implements INodeType {
 			model: modelName,
 			temperature: options.temperature,
 			maxRetries: options.maxRetries ?? 2,
-			callbacks: [new N8nLlmTracing(this, { tokensUsageParser })],
+			callbacks: [
+				new N8nLlmTracing(this, {
+					model: modelName,
+					credentialId: credentials['credentialId'],
+					allowedDomains: credentials['allowedDomains'],
+					tokensUsageParser,
+				}),
+			],
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 		});
 

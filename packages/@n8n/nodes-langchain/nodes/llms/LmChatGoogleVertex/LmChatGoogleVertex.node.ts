@@ -181,7 +181,13 @@ export class LmChatGoogleVertex implements INodeType {
 				temperature: options.temperature,
 				maxOutputTokens: options.maxOutputTokens,
 				safetySettings,
-				callbacks: [new N8nLlmTracing(this)],
+				callbacks: [
+					new N8nLlmTracing(this, {
+						model: modelName,
+						credentialId: credentials['credentialId'],
+						allowedDomains: credentials['allowedDomains'],
+					}),
+				],
 				// Handle ChatVertexAI invocation errors to provide better error messages
 				onFailedAttempt: makeN8nLlmFailedAttemptHandler(this, (error: any) => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

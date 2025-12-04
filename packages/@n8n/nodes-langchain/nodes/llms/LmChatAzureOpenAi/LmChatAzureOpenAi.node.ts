@@ -113,7 +113,13 @@ export class LmChatAzureOpenAi implements INodeType {
 				...options,
 				timeout: options.timeout ?? 60000,
 				maxRetries: options.maxRetries ?? 2,
-				callbacks: [new N8nLlmTracing(this)],
+				callbacks: [
+					new N8nLlmTracing(this, {
+						model: modelName,
+						credentialId: credentials['credentialId'],
+						allowedDomains: credentials['allowedDomains'],
+					}),
+				],
 				configuration: {
 					fetchOptions: {
 						dispatcher: getProxyAgent(),
