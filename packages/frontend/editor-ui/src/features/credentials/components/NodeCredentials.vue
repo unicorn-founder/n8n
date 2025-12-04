@@ -546,7 +546,11 @@ async function onClickCreateCredential(type: ICredentialType | INodeCredentialDe
 					</div>
 
 					<div
-						v-if="selected[type.name] && isCredentialExisting(type)"
+						v-if="
+							!getSelectedName(type.name).startsWith('system-') &&
+							selected[type.name] &&
+							isCredentialExisting(type)
+						"
 						:class="$style.edit"
 						data-test-id="credential-edit-button"
 					>
