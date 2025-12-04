@@ -102,7 +102,7 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 		model?: string,
 		llmOutput?: Record<string, any>,
 	) {
-		const allowedDomain = allowedDomains!;
+		const allowedDomain = allowedDomains;
 		let isLocalExecution = false;
 		if (allowedDomain?.includes('localhost')) {
 			isLocalExecution = true;
