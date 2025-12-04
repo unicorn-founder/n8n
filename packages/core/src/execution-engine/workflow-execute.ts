@@ -1074,6 +1074,7 @@ export class WorkflowExecute {
 		if (customOperation) {
 			data = await customOperation.call(context);
 		} else if (nodeType.execute) {
+			// TODO: Track usage of system credentials
 			data =
 				nodeType instanceof Node
 					? await nodeType.execute(context, subNodeExecutionResults)
