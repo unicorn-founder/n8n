@@ -547,7 +547,7 @@ async function onClickCreateCredential(type: ICredentialType | INodeCredentialDe
 
 					<div
 						v-if="
-							!getSelectedName(type.name).startsWith('system-') &&
+							!getSelectedName(type.name)?.startsWith('system-') &&
 							selected[type.name] &&
 							isCredentialExisting(type)
 						"
